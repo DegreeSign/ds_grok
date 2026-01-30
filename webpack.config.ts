@@ -20,7 +20,7 @@ const commonConfig: Configuration = {
         ],
     },
     plugins: [ // @ts-ignore
-        new BundleAnalyzerPlugin(),
+        // new BundleAnalyzerPlugin(),
         new CleanWebpackPlugin(), // Clean output directory before each build
         new webpack.BannerPlugin({
             banner: `/*! MIT License. DegreeSign Grok AI SDK. https://opensource.org/licenses/MIT */`,

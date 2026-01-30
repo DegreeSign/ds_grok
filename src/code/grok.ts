@@ -78,8 +78,8 @@ const
                 isImage = responseType == `image` && typeof prompt == `string`,
                 isJSON = responseType == `json` && typeof prompt != `string`;
             model = model || (
-                isImage ? `grok-2-image-1212`
-                    : `grok-3-mini`
+                isImage ? `grok-imagine-image`
+                    : `grok-4-fast`
             );
             const
                 start = performance.now(),

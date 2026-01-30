@@ -1,9 +1,6 @@
 declare const GROK_BASE_URL = "https://api.x.ai/v1/", GROK_PRICING_UNIT = 1000000, GROK_PRICING_DATA: {
-    readonly 'grok-code-fast-1': GrokPricing;
-    readonly 'grok-4-0709': GrokPricing;
-    readonly 'grok-3': GrokPricing;
-    readonly 'grok-3-mini': GrokPricing;
-    readonly 'grok-2-image-1212': GrokPricing;
+    readonly 'grok-4-fast': GrokPricing;
+    readonly 'grok-imagine-image': GrokPricing;
 }, grokSourcesStatement: (type: string) => string, GROK_SETUP: string;
 interface GrokPricing {
     prompt: number;

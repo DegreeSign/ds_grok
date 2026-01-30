@@ -2,31 +2,16 @@ const
     GROK_BASE_URL = `https://api.x.ai/v1/`,
     GROK_PRICING_UNIT = 1_000_000,
     GROK_PRICING_DATA = {
-        'grok-code-fast-1': {
+        'grok-4-fast': {
             prompt: 0.20,
-            cached: 0.02,
-            completion: 1.50,
-        } as GrokPricing,
-        'grok-4-0709': {
-            prompt: 3.00,
-            cached: 0.75,
-            completion: 15.00,
-        } as GrokPricing,
-        'grok-3': {
-            prompt: 3.00,
-            cached: 0.75,
-            completion: 15.00,
-        } as GrokPricing,
-        'grok-3-mini': {
-            prompt: 0.30,
-            cached: 0.075,
+            cached: 0.05,
             completion: 0.50,
         } as GrokPricing,
-        'grok-2-image-1212': {
+        'grok-imagine-image': {
             images: true,
-            prompt: 0,
-            cached: 0,
-            completion: 0.07,
+            prompt: 0.002,
+            cached: 0.02,
+            completion: 0.02,
         } as GrokPricing,
     } as const,
     grokSourcesStatement = (type: string) =>

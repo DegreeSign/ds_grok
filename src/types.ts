@@ -60,7 +60,7 @@ interface GrokTextResponse {
     object: string;
     /** Unix timestamp of when the response was created, e.g., 1757857163 */
     created: number;
-    /** Model used for the response, e.g., "grok-4-0709" */
+    /** Model used for the response, e.g., "grok-4-fast" */
     model: string;
     /** Array of response choices */
     choices: GrokResponseChoices[];
