@@ -71,15 +71,23 @@ type GrokResults<T> = {
     error: string;
     code: string;
 };
-interface GrokSuccessResponse<T> {
+interface GrokSuccessResponse {
     success: true;
-    response: string | T;
     costUSD: string;
     seconds: string;
+}
+interface GrokSuccessResponseText<T> extends GrokSuccessResponse {
+    type: `json`;
+    response: GrokFullResponse<T>;
+}
+interface GrokSuccessResponseImage extends GrokSuccessResponse {
+    type: `image`;
+    response: string;
 }
 interface GrokFailedResponse {
     success: false;
     error: string;
+    costUSD?: string;
 }
 interface GrokSource {
     link: string;
@@ -112,4 +120,4 @@ type GrokImageResponse = {
         revised_prompt: string;
     }[];
 };
-export { GrokFullResponse, GrokTextResponse, GrokResponseUsage, GrokResults, GrokSuccessResponse, GrokFailedResponse, GrokSource, GrokAITypes, GrokPromptObj, GrokImageRequest, GrokImageResponse, };
+export { GrokFullResponse, GrokTextResponse, GrokResponseUsage, GrokResults, GrokSuccessResponseText, GrokSuccessResponseImage, GrokFailedResponse, GrokSource, GrokAITypes, GrokPromptObj, GrokImageRequest, GrokImageResponse, };

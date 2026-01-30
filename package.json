@@ -1,6 +1,6 @@
 {
   "name": "@degreesign/grok",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "DegreeSign Grok AI SDK",
   "main": "dist/node/degreesign.node.min.js",
   "module": "dist/node/degreesign.node.min.js",

@@ -1,5 +1,9 @@
-declare const grokGenImage: ({ apiKey, prompt, }: {
+declare const grokGenImage: ({ apiKey, description, }: {
     apiKey: string;
-    prompt: string;
-}) => Promise<unknown>;
+    description: string;
+}) => Promise<{
+    prompt?: string;
+    url?: string;
+    costUSD?: string;
+}>;
 export { grokGenImage, };

@@ -2,28 +2,39 @@ import {
     GrokTextResponse,
     GrokResponseUsage,
     GrokResults,
-    GrokSuccessResponse,
-    GrokAITypes,
+    GrokSuccessResponseText,
+    GrokSuccessResponseImage,
     GrokPromptObj,
     GrokImageResponse,
     GrokFailedResponse,
+    GrokFullResponse,
 } from "../types";
 import {
     GROK_BASE_URL,
-    GROK_PRICING_DATA,
+    GROK_PRICING_TEXT,
+    GROK_PRICING_IMAGES,
     GROK_PRICING_UNIT,
     GROK_SETUP,
-    GrokModelTypes,
+    GrokModelText,
     GrokReqObj,
     grokSourcesStatement,
+    GrokModelImages,
+    GrokImageTypes,
 } from "./constants";
 
-interface GrokInputParams {
+type GrokInputParams = {
     apiKey: string;
-    responseType: GrokAITypes;
-    prompt: string | GrokPromptObj[];
-    model?: GrokModelTypes;
-}
+} & ({
+    responseType: `json`;
+    prompt: GrokPromptObj[];
+    model?: GrokModelText;
+    format?: undefined;
+} | {
+    responseType: `image`;
+    prompt: string;
+    model?: GrokModelImages;
+    format?: GrokImageTypes;
+})
 
 const
     /** Calculates cost of Grok API call based on token usage and model */
@@ -32,11 +43,12 @@ const
         model
     }: {
         usage: GrokResponseUsage;
-        model: GrokModelTypes
+        model: GrokModelText | GrokModelImages
     }): number | undefined => {
         try {
             const
-                pricing = GROK_PRICING_DATA[model],
+                pricing = GROK_PRICING_TEXT[model as GrokModelText]
+                    || GROK_PRICING_IMAGES[model as GrokModelImages],
                 {
                     prompt_tokens: prompt,
                     prompt_tokens_details: { cached_tokens: cached },
@@ -69,8 +81,10 @@ const
         responseType,
         prompt,
         model,
+        format,
     }: GrokInputParams): Promise<
-        GrokSuccessResponse<T>
+        GrokSuccessResponseText<T>
+        | GrokSuccessResponseImage
         | GrokFailedResponse
     > => {
         try {
@@ -78,15 +92,15 @@ const
                 isImage = responseType == `image` && typeof prompt == `string`,
                 isJSON = responseType == `json` && typeof prompt != `string`;
             model = model || (
-                isImage ? `grok-imagine-image`
-                    : `grok-4-fast`
+                isImage ? Object.keys(GROK_PRICING_IMAGES)?.[0] as GrokModelText
+                    : Object.keys(GROK_PRICING_TEXT)?.[0] as GrokModelImages
             );
             const
                 start = performance.now(),
                 reqData: GrokReqObj | undefined = isImage ? {
-                    model,
+                    model: model as GrokModelImages,
                     prompt,
-                    response_format: `url`,
+                    response_format: format || `url`,
                     n: 1,
                 } : isJSON ? {
                     messages: [{
@@ -96,7 +110,7 @@ const
                         role: `user`,
                         content: grokRequest(prompt)
                     }],
-                    model,
+                    model: model as GrokModelText,
                     stream: false,
                     temperature: responseType == `json` ? 0.3 : 0.7,
                 } : undefined,
@@ -119,41 +133,54 @@ const
                     data,
                     error: undefined,
                 };
+            let
+                costUSD = GROK_PRICING_IMAGES[model as GrokModelImages]?.completion || 0,
+                resultTextJSON: GrokFullResponse<T> = undefined as any,
+                resultImage: string = ``;
             if (res?.error != undefined) {
                 console.log(`aiData error`, res?.error);
                 return {
                     success: false,
-                    error: res?.error
+                    error: res?.error,
+                    costUSD: isImage ? costUSD.toFixed(4) : `0`
                 };
             } else {
-                let
-                    costUSD = 0,
-                    response = `` as string | T;
+                if (!res?.data)
+                    return {
+                        success: false,
+                        error: ``,
+                        costUSD: isImage ? costUSD.toFixed(4) : `0`
+                    };
+
                 if (`choices` in res?.data) {
                     costUSD = calculateGrokCost({ usage: res?.data?.usage, model }) || 0;
                     const responseStr = res?.data?.choices?.[0]?.message?.content;
-                    response = JSON.parse(responseStr);
+                    resultTextJSON = JSON.parse(responseStr);
                 } else if (isImage) {
                     const imageData = res?.data?.data?.[0];
-                    costUSD = 0.07;
-                    response = imageData?.url
+                    resultImage = imageData?.url
                         || imageData?.b64_json
                         || ``;
-                };
-                if (!response) console.log(`aiData issue`, res);
-                return {
-                    success: true,
-                    response,
-                    costUSD: costUSD.toFixed(2),
-                    seconds: ((performance.now() - start) / 1_000, 2).toFixed(2),
-                };
+                } else console.log(`aiData issue`, res);
+            };
+            return {
+                success: true,
+                costUSD: costUSD.toFixed(4),
+                seconds: ((performance.now() - start) / 1_000, 2).toFixed(2),
+                ...isImage ? {
+                    type: `image`,
+                    response: resultImage,
+                } : {
+                    type: `json`,
+                    response: resultTextJSON,
+                },
             };
         } catch (e) {
             console.log(`aiData failed`, e);
-            return {
-                success: false,
-                error: ``
-            };
+        };
+        return {
+            success: false,
+            error: ``
         };
     };
 

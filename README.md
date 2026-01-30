@@ -21,7 +21,7 @@ yarn add @degreesign/grok
 Use in browsers through CDN
 ```html
 <script 
-    src="https://cdn.jsdelivr.net/npm/@degreesign/grok@1.0.1/dist/browser/degreesign.min.js"
+    src="https://cdn.jsdelivr.net/npm/@degreesign/grok@1.0.2/dist/browser/degreesign.min.js"
 ></script>
 ```
 Note `dsGrok` is the browser global object for this library functions.

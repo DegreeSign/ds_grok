@@ -1,7 +1,8 @@
 // import ffmpegStatic from 'ffmpeg-static';
 // import ffmpegObj from 'fluent-ffmpeg';
 import { grokAI } from './grok';
-import { GrokImageRequest } from '../types';
+import { GrokSuccessResponseText } from '../types';
+import { GROK_IMAGE_PROMPT } from './constants';
 
 const
     // getFFMPEG = () => {
@@ -75,23 +76,51 @@ const
     // },
     grokGenImage = async ({
         apiKey,
-        prompt,
+        description,
     }: {
         apiKey: string;
-        prompt: string;
-    }) => {
+        description: string;
+    }): Promise<{
+        prompt?: string;
+        url?: string;
+        costUSD?: string;
+    }> => {
         try {
-            const data = await grokAI({
-                apiKey,
+            const
+                text = await grokAI<{
+                    imagePrompt: string;
+                }>({
+                    apiKey,
+                    responseType: `json`,
+                    prompt: [{
+                        dataKeyName: `imagePrompt`,
+                        type: `string`,
+                        requiredData: GROK_IMAGE_PROMPT
+                            .replace(`DESCRIPTION_TEXT`, description),
+                    }],
+                }) as GrokSuccessResponseText<{
+                    imagePrompt: string;
+                }>,
+                prompt = text?.success ? text.response?.data?.imagePrompt : ``,
+                imageResults = !prompt ? undefined : await grokAI<string>({
+                    apiKey,
+                    responseType: `image`,
+                    prompt: prompt
+                });
+            return {
                 prompt,
-                responseType: `image`,
-            });
-            if (data?.success)
-                return data?.response
+                url: imageResults?.success && imageResults?.type == `image` ?
+                    imageResults?.response
+                    : undefined,
+                costUSD: (
+                    (+text?.costUSD || 0)
+                    + +(imageResults?.costUSD || 0)
+                ).toFixed(4),
+            };
         } catch (e) {
             console.log(`grokGenImage failed`, e);
-            return ``
         };
+        return {}
     };
 
 export {

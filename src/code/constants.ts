@@ -1,16 +1,18 @@
 const
     GROK_BASE_URL = `https://api.x.ai/v1/`,
     GROK_PRICING_UNIT = 1_000_000,
-    GROK_PRICING_DATA = {
+    GROK_PRICING_TEXT = {
         'grok-4-fast': {
             prompt: 0.20,
             cached: 0.05,
             completion: 0.50,
         } as GrokPricing,
+    } as const,
+    GROK_PRICING_IMAGES = {
         'grok-imagine-image': {
             images: true,
             prompt: 0.002,
-            cached: 0.02,
+            cached: 0.002,
             completion: 0.02,
         } as GrokPricing,
     } as const,
@@ -29,8 +31,12 @@ const
         `* bullet points or any other formatting that violates JSON object\n` +
         `\n**Do:**\n` +
         `* edit ruthlessly to remove redundant phrases or ideas\n` +
-        `* respond with a valid JSON object\n`;
-
+        `* respond with a valid JSON object\n`,
+    GROK_IMAGE_PROMPT =
+        `1. Create a 200 words prompt to generate an image based on this description:\n   DESCRIPTION_TEXT\n` +
+        `2. Produce a unique interesting image.\n` +
+        `3. Do not mention the number of words in the prompt.\n` +
+        `4. If the prompt results in any human figure in a revealing or explicit manner, revise the prompt without deviating from the required description to describe in detail a minimalist covering for each and every revealing part, without using explicit or intimate words.`;
 
 interface GrokPricing {
     prompt: number;
@@ -39,8 +45,9 @@ interface GrokPricing {
     images?: boolean;
 }
 
-type GrokModelTypes = keyof typeof GROK_PRICING_DATA;
+type GrokModelText = keyof typeof GROK_PRICING_TEXT;
 
+type GrokModelImages = keyof typeof GROK_PRICING_IMAGES;
 
 interface GrokReqMessage {
     role: `system` | `user`,
@@ -50,12 +57,12 @@ interface GrokReqMessage {
 type GrokImageTypes = `url` | `b64_json`;
 
 type GrokReqObj = {
-    model: GrokModelTypes;
+    model: GrokModelImages;
     prompt: string;
     response_format?: GrokImageTypes
     n: number;
 } | {
-    model: GrokModelTypes;
+    model: GrokModelText;
     messages: GrokReqMessage[];
     stream: boolean;
     temperature: number;
@@ -64,10 +71,13 @@ type GrokReqObj = {
 export {
     GROK_BASE_URL,
     GROK_PRICING_UNIT,
-    GROK_PRICING_DATA,
+    GROK_PRICING_IMAGES,
+    GROK_PRICING_TEXT,
     GROK_SETUP,
+    GROK_IMAGE_PROMPT,
     grokSourcesStatement,
-    GrokModelTypes,
+    GrokModelText,
+    GrokModelImages,
     GrokReqMessage,
     GrokImageTypes,
     GrokReqObj,

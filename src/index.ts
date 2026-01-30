@@ -1,16 +1,20 @@
-import { GrokModelTypes } from './code/constants';
+import { GrokModelText } from './code/constants';
 import { GrokInputParams, grokAI } from './code/grok'
+import { grokGenImage } from './code/images';
 import {
     GrokFailedResponse,
     GrokPromptObj,
-    GrokSuccessResponse
+    GrokSuccessResponseImage,
+    GrokSuccessResponseText,
 } from './types';
 
 export {
     GrokPromptObj,
-    GrokModelTypes,
+    GrokModelText,
     GrokInputParams,
+    GrokSuccessResponseText,
+    GrokSuccessResponseImage,
+    GrokFailedResponse,
     grokAI,
-    GrokSuccessResponse,
-    GrokFailedResponse
+    grokGenImage,
 };
